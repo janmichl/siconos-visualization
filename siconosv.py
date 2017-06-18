@@ -34,33 +34,32 @@ bl_info = {
 #2)ways to handle compound shapes in blender
 #3)ways to handle mesh shapes in blender
 
-class Simulation:
+class Simulation(object):
 
     def __init__(self, shape_filename='ref.txt', input_filename='input.dat', bind_filename='bindings.dat', dpos_filename='dpos.dat', spos_filename='spos.dat'):
-
-        self.shape_filename = shape_filename
-        self.input_filename = input_filename
-        self.bind_filename  = bind_filename
-        self.dpos_filename  = dpos_filename
-        self.spos_filename  = spos_filename
+        
+        self.shape_filename_ = shape_filename
+        self.input_filename_ = input_filename
+        self.bind_filename_  = bind_filename
+        self.dpos_filename_  = dpos_filename
+        self.spos_filename_  = spos_filename
 
         #symbols recognizable by the parser
-        self.symbols = ['Cone', 'Sphere', 'Box', 'Plane', 'Cylinder', 'Pyramid', 'Capsule']
+        self.symbols_ = ['Cone', 'Sphere', 'Box', 'Plane', 'Cylinder', 'Pyramid', 'Capsule']
 
         #dictionary for holding number of instances of each primitive
-        self.instance_counters = dict()
+        self.instance_counters_ = dict()
 
         #dictionary holding moving objects on the scene - 'name_of_the_object':array_with_animation_data
-        self.movables = dict()
+        self.movables_ = dict()
 
         #dictionary holding the bindings from the bindings.dat file
-        self.bindings = dict()
+        self.bindings_ = dict()
 
     def strToVect(self, st):
 
         tmp = st.split(' ')
         vec = []
-
         for num in tmp:
             num = float(num)
             vec.append(num)
@@ -123,7 +122,6 @@ class Simulation:
         return
 
     def createForceArrow(self, x, y, z, n, lbd = 0):
-
         """Creates an arrow from a given point along a given vector
         x,y,z is point to go from, n is a noral vector, and lbd is a scaling factor"""
 
@@ -170,7 +168,6 @@ class Simulation:
         return ob
 
     def createContactCone(self, x, y, z, mu):
-
         """Creates an inversed cone with the top placed at a given point, mu is a
         friction coeff"""
 
@@ -206,12 +203,11 @@ class Simulation:
         #if object is dynamic create an entry in the movables dictionary
 
         if int(li[3]) > 0:
-            self.movables[myName] = numpy.empty(0) 
+            self.movables_[myName] = numpy.empty(0) 
         
         my_Pyramid = bpy.ops.mesh.primitive_cone_add(vertices=4, radius1=params[0], radius2=0, depth=params[1], location=self.strToVect(' '.join(li[6:9]), rotation=self.quatToEul(self.strToVect(' '.join(li[9:13])))))
 
         ob = bpy.context.object
-
         ob.name = myName 
         ob.show_name = True
         me = ob.data
@@ -232,7 +228,7 @@ class Simulation:
 
         #if object is dynamic create an entry in the movables dictionary
         if int(li[3]) > 0:
-            self.movables[myName] = numpy.empty(0) 
+            self.movables_[myName] = numpy.empty(0) 
 
         my_Cone = bpy.ops.mesh.primitive_cone_add(vertices=40, radius1=params[0], radius2=0, depth=params[1], location=self.strToVect(' '.join(li[6:9]), rotation=self.quatToEul(self.strToVect(' '.join(li[9:13])))))
 
@@ -258,7 +254,7 @@ class Simulation:
         myName = 'Box' + '_' + str(li[4])
         #if object is dynamic create an entry in the movables dictionary
         if int(li[4]) > 0:
-            self.movables[myName] = numpy.empty(0) 
+            self.movables_[myName] = numpy.empty(0) 
 
         my_Box = bpy.ops.mesh.primitive_cube_add(location=self.strToVect(' '.join(li[7:10])), rotation=self.quatToEul(self.strToVect(' '.join(li[10:14]))))
         ob = bpy.context.object
@@ -283,11 +279,10 @@ class Simulation:
 
         #if object is dynamic create an entry in the movables dictionary
         if int(li[2]) > 0:
-            self.movables[myName] = numpy.empty(0) 
+            self.movables_[myName] = numpy.empty(0) 
 
         my_Sphere = bpy.ops.mesh.primitive_uv_sphere_add(size=params[0], location=self.strToVect(' '.join(li[5:8])))
         ob = bpy.context.object
-
         ob.name = myName 
         ob.show_name = True
         me = ob.data
@@ -307,7 +302,7 @@ class Simulation:
         myName = 'Cylinder' + '_' + str(li[3])
         #if object is dynamic create an entry in the movables dictionary
         if int(li[3]) > 0:
-            self.movables[myName] = numpy.empty(0) 
+            self.movables_[myName] = numpy.empty(0) 
         
         rot = self.quatToEul(self.strToVect(' '.join(li[9:13])))    
         #we rotate the cylinder to make it along the y-axis as in bullet
@@ -340,7 +335,7 @@ class Simulation:
 
         #if object is dynamic create an entry in the movables dictionary
         if int(li[3]) > 0:
-            self.movables[myFinalName] = numpy.empty(0) 
+            self.movables_[myFinalName] = numpy.empty(0) 
 
         rot = self.quatToEul(self.strToVect(' '.join(li[9:13])))    
         loc = self.strToVect(' '.join(li[6:9]))
@@ -399,7 +394,7 @@ class Simulation:
 
         #if object is dynamic create an entry in the movables dictionary
         if int(li[4]) > 0:
-            self.movables[myName] = numpy.empty(0) 
+            self.movables_[myName] = numpy.empty(0) 
 
         my_Plane = bpy.ops.mesh.primitive_plane_add(location=self.strToVect(' '.join(li[7:10])), rotation=self.quatToEul(self.strToVect(' '.join(li[10:14]))))
 
@@ -418,13 +413,12 @@ class Simulation:
         return ob
 
     def makeStlMesh(self, li):
-
         """Function to read an .stl mesh from the file and instantiate it on the scene"""
 
         myName = 'My_Mesh' + '_' + str(li[1])
         #if object is dynamic create an entry in the movables dictionary
         if int(li[1]) > 0:
-            self.movables[myName] = numpy.empty(0) 
+            self.movables_[myName] = numpy.empty(0) 
 
         my_mesh = bpy.ops.import_mesh.stl(filepath=li[0])
         ob = bpy.context.selected_objects[0]
@@ -444,18 +438,17 @@ class Simulation:
         return ob
 
     def prepareInput(self):
-
         """Prepares input to drawScene function (reads from ref.txt and input.dat).
         Returns a list of strings read by the drawScene() function.
         This function also fills the dictionary from the bindings.dat file"""
 
         # get the bindings of the objects
-        with open(self.bind_filename, 'r') as bind_file:
+        with open(self.bind_filename_, 'r') as bind_file:
 
             bind_lines = bind_file.readlines()
             for bind_line in bind_lines:
                 lex = shlex.split(bind_line)
-                self.bindings[int(lex[0])] = [int(lex[1])]
+                self.bindings_[int(lex[0])] = [int(lex[1])]
 
         # dictionary with pairs : position in the file (line number) - primitive specification
         shapes = dict() 
@@ -463,11 +456,11 @@ class Simulation:
         # function's output - a list with strings which are inputs to the drawScene() function
         drawScene_input = list()
 
-        with open(self.input_filename, 'r') as finput, open(self.shape_filename, 'r') as fshapes:
+        with open(self.input_filename_, 'r') as finput, open(self.shape_filename_, 'r') as fshapes:
             shape_lines = fshapes.readlines()
             for idx, shape_line in enumerate(shape_lines):
                 shapes[idx] = shape_line.replace("\n", "")
-                self.instance_counters[shapes[idx].split()[0]] = 0
+                self.instance_counters_[shapes[idx].split()[0]] = 0
 
             input_lines = finput.readlines()
 
@@ -483,7 +476,6 @@ class Simulation:
         return drawScene_input
 
     def drawScene(self):
-
         """Visualizes the initial scene state - places objects from the list returned by prepareInput()
         in their initial state. Returns a scene with objects placed at their initial positions and
         with their attributes"""
@@ -492,7 +484,7 @@ class Simulation:
         bpy.ops.object.select_by_type(type='MESH')
         bpy.ops.object.delete()
         lines = self.prepareInput()
-        spos = numpy.loadtxt(self.spos_filename)
+        spos = numpy.loadtxt(self.spos_filename_)
 
         #slicing of spos to get the id's vector (handling the 1D case of spos)
         if spos.ndim == 1:
@@ -504,11 +496,11 @@ class Simulation:
             lex = shlex.split(line)
             symbol = lex[0]
             
-            if symbol in self.symbols:
+            if symbol in self.symbols_:
                 #instantiation of objects
                 
                 if symbol == 'Box':
-                    self.instance_counters[symbol] += 1
+                    self.instance_counters_[symbol] += 1
                     self.makeBox(lex)
                     
                     if numpy.where(spos_id_slice == float(lex[5]))[0].size != 0:
@@ -519,7 +511,7 @@ class Simulation:
                             self.applyTransform(spos[numpy.where(spos_id_slice == float(lex[5]))][0, 2:5], spos[numpy.where(spos_id_slice == float(lex[5]))][0, 5:])
 
                 elif symbol == 'Sphere':
-                    self.instance_counters[symbol] += 1
+                    self.instance_counters_[symbol] += 1
                     self.makeSphere(lex)
                     if numpy.where(spos_id_slice == float(lex[3]))[0].size != 0:
 
@@ -529,7 +521,7 @@ class Simulation:
                             self.applyTransform(spos[numpy.where(spos_id_slice == float(lex[3]))][0, 2:5], spos[numpy.where(spos_id_slice == float(lex[3]))][0, 5:])
 
                 elif symbol == 'Cylinder':
-                    self.instance_counters[symbol] += 1
+                    self.instance_counters_[symbol] += 1
                     self.makeCylinder(lex)
 
                     if numpy.where(spos_id_slice == float(lex[4]))[0].size != 0:
@@ -540,7 +532,7 @@ class Simulation:
                             self.applyTransform(spos[numpy.where(spos_id_slice == float(lex[4]))][0, 2:5], spos[numpy.where(spos_id_slice == float(lex[4]))][0, 5:])
 
                 elif symbol == 'Plane':
-                    self.instance_counters[symbol] += 1
+                    self.instance_counters_[symbol] += 1
                     self.makePlane(lex)
 
                     if numpy.where(spos_id_slice == float(lex[5]))[0].size != 0:
@@ -551,7 +543,7 @@ class Simulation:
                             self.applyTransform(spos[numpy.where(spos_id_slice == float(lex[5]))][0, 2:5], spos[numpy.where(spos_id_slice == float(lex[5]))][0, 5:])
 
                 elif symbol == 'Cone':
-                    self.instance_counters[symbol] += 1
+                    self.instance_counters_[symbol] += 1
                     self.makeCone(lex)
                     
                     if numpy.where(spos_id_slice == float(lex[4]))[0].size != 0:
@@ -562,7 +554,7 @@ class Simulation:
                             self.applyTransform(spos[numpy.where(spos_id_slice == float(lex[4]))][0, 2:5], spos[numpy.where(spos_id_slice == float(lex[4]))][0, 5:])
 
                 elif symbol == 'Pyramid':
-                    self.instance_counters[symbol] += 1
+                    self.instance_counters_[symbol] += 1
                     self.makePyramid(lex)
 
                     if numpy.where(spos_id_slice == float(lex[4]))[0].size != 0:
@@ -572,7 +564,7 @@ class Simulation:
                             self.applyTransform(spos[numpy.where(spos_id_slice == float(lex[4]))][0, 2:5], spos[numpy.where(spos_id_slice == float(lex[4]))][0, 5:])
 
                 elif symbol == 'Capsule':
-                    self.instance_counters[symbol] += 1
+                    self.instance_counters_[symbol] += 1
                     self.makeCapsule(lex)
 
                     if numpy.where(spos_id_slice == float(lex[4]))[0].size != 0:
@@ -583,7 +575,7 @@ class Simulation:
                             self.applyTransform(spos[numpy.where(spos_id_slice == float(lex[4]))][0, 2:5], spos[numpy.where(spos_id_slice == float(lex[4]))][0, 5:])
 
             elif '.stl' in symbol:
-                self.instance_counters[symbol] += 1
+                self.instance_counters_[symbol] += 1
                 self.makeStlMesh(lex)
 
             bpy.ops.object.select_all()    
@@ -591,7 +583,6 @@ class Simulation:
         return scn
 
     def injectKeyframes(self):
-
         """Injects keyframes in dynamic objects on the scene (reads from dpos.dat)"""
 
         #calculating the framerate (assuming 24 fps)
@@ -607,7 +598,7 @@ class Simulation:
         scn = bpy.context.scene
 
         #time evolution loading
-        dpos = numpy.loadtxt(self.dpos_filename, ndmin=2)
+        dpos = numpy.loadtxt(self.dpos_filename_, ndmin=2)
         
         #calculating simTime and timeStep
         simTime = dpos[:, 0][dpos[:, 0].size - 1]
@@ -624,12 +615,12 @@ class Simulation:
         #picking lines corresponding to respective id's 
 
         #appending numpy arrays to the dictionary
-        for key in self.movables.keys():
+        for key in self.movables_.keys():
             idx = int(key.split("_")[1])
-            self.movables[key] = dpos[numpy.where(dpos[:,1] == idx)]
+            self.movables_[key] = dpos[numpy.where(dpos[:,1] == idx)]
 
         #Creation of actions for objects
-        objects = self.movables.keys()
+        objects = self.movables_.keys()
         for obj in bpy.data.objects:
             obj.rotation_mode = 'QUATERNION'
             
@@ -646,24 +637,24 @@ class Simulation:
                 fcu_rot2 = obj.animation_data.action.fcurves.new(data_path="rotation_quaternion", index=2)
                 fcu_rot3 = obj.animation_data.action.fcurves.new(data_path="rotation_quaternion", index=3)
 
-                fcu_x.keyframe_points.add(len(self.movables[obj.name]))
-                fcu_y.keyframe_points.add(len(self.movables[obj.name]))
-                fcu_z.keyframe_points.add(len(self.movables[obj.name]))
+                fcu_x.keyframe_points.add(len(self.movables_[obj.name]))
+                fcu_y.keyframe_points.add(len(self.movables_[obj.name]))
+                fcu_z.keyframe_points.add(len(self.movables_[obj.name]))
 
-                fcu_rot0.keyframe_points.add(len(self.movables[obj.name]))
-                fcu_rot1.keyframe_points.add(len(self.movables[obj.name]))
-                fcu_rot2.keyframe_points.add(len(self.movables[obj.name]))
-                fcu_rot3.keyframe_points.add(len(self.movables[obj.name]))
+                fcu_rot0.keyframe_points.add(len(self.movables_[obj.name]))
+                fcu_rot1.keyframe_points.add(len(self.movables_[obj.name]))
+                fcu_rot2.keyframe_points.add(len(self.movables_[obj.name]))
+                fcu_rot3.keyframe_points.add(len(self.movables_[obj.name]))
 
-                for i in range(0, len(self.movables[obj.name])):
-                    fcu_x.keyframe_points[i].co = i*frameRate, self.movables[obj.name][i][2]
-                    fcu_y.keyframe_points[i].co = i*frameRate, self.movables[obj.name][i][3]
-                    fcu_z.keyframe_points[i].co = i*frameRate, self.movables[obj.name][i][4]
+                for i in range(0, len(self.movables_[obj.name])):
+                    fcu_x.keyframe_points[i].co = i*frameRate, self.movables_[obj.name][i][2]
+                    fcu_y.keyframe_points[i].co = i*frameRate, self.movables_[obj.name][i][3]
+                    fcu_z.keyframe_points[i].co = i*frameRate, self.movables_[obj.name][i][4]
 
-                    fcu_rot0.keyframe_points[i].co = i*frameRate, self.movables[obj.name][i][5]
-                    fcu_rot1.keyframe_points[i].co = i*frameRate, self.movables[obj.name][i][6]
-                    fcu_rot2.keyframe_points[i].co = i*frameRate, self.movables[obj.name][i][7]
-                    fcu_rot3.keyframe_points[i].co = i*frameRate, self.movables[obj.name][i][8]
+                    fcu_rot0.keyframe_points[i].co = i*frameRate, self.movables_[obj.name][i][5]
+                    fcu_rot1.keyframe_points[i].co = i*frameRate, self.movables_[obj.name][i][6]
+                    fcu_rot2.keyframe_points[i].co = i*frameRate, self.movables_[obj.name][i][7]
+                    fcu_rot3.keyframe_points[i].co = i*frameRate, self.movables_[obj.name][i][8]
 
         #turning back frames to the beginning             
         frame_num = 0    

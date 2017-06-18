@@ -3,14 +3,14 @@ siconos-visualization
 
 Python tool for visualization of simulations with siconos.
 
-How to run
+how to run
 ==========
 
 Type '`make`' from commandline. The script will
 pick up the existing *.dat and *.txt files resulting from siconos simulation and
 prepare the scene.
 
-requirements
-===========
+dependencies
+============
 
-Needs python3 and python3-numpy packages.
+Needs Blender, python3 and python3-numpy packages.
