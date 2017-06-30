@@ -14,3 +14,8 @@ dependencies
 ============
 
 Needs Blender, python3 and python3-numpy packages.
+
+example view
+============
+
+![Alt text](media/blender.png?raw=true "Title")
