@@ -1,6 +1,10 @@
 #! /usr/bin/env python3
 # Blender scripts
 
+#author Jan Michalczyk 
+#copyright 2016-2017 INRIA. Licensed under the Apache License, Version 2.0.
+#(see @ref LICENSE or http://www.apache.org/licenses/LICENSE-2.0)
+
 #needs blender. run it from the command line: blender --python siconosv.py
 #to debug without blender: blender --background --python siconosv.py
 #framerate given to the function should correspond to the timestep of the simulation
